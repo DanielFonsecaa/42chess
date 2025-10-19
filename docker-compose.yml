@@ -8,7 +8,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     ports:
-      - "5434:5432"
+      - "5432:5432"
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d chess42"]
@@ -25,9 +25,12 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: "postgresql://postgres:postgres@db:5432/chess42"
-      JWT_TOKEN: "change_this_for_prod"
-      SALT_ROUNDS: "12"
+      # Use environment variables if provided, otherwise fall back to safe defaults
+      DATABASE_URL: ${DATABASE_URL:-"postgresql://postgres:postgres@db:5432/chess42"}
+      JWT_TOKEN: ${JWT_TOKEN:-"change_this_for_prod"}
+      SALT_ROUNDS: ${SALT_ROUNDS:-"12"}
+      # allow frontend served from nginx on host:8080 to access the API
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-"http://localhost:8080"}
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
@@ -39,6 +42,9 @@ services:
     build:
       context: ./frontChess
       dockerfile: Dockerfile
+      args:
+        # allow build arg to be supplied from environment or .env file
+        VITE_API_URL: ${VITE_API_URL:-"http://localhost:3000"}
     ports:
       - "8080:80"
     depends_on:

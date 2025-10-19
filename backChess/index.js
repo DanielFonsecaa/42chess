@@ -55,6 +55,12 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
 ];
+// If FRONTEND_ORIGIN is provided at runtime, ensure it's allowed
+if (process.env.FRONTEND_ORIGIN) {
+  // avoid duplicates
+  if (!allowedOrigins.includes(process.env.FRONTEND_ORIGIN))
+    allowedOrigins.push(process.env.FRONTEND_ORIGIN);
+}
 app.use(
   cors({
     origin: function (origin, cb) {
