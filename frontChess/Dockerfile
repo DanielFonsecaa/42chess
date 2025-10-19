@@ -1,4 +1,3 @@
-# Stage 1: Build the application
 FROM node:20-alpine AS builder
 
 # Set the working directory inside the container
@@ -7,7 +6,7 @@ WORKDIR /app
 # Copy package.json and package-lock.json (if present)
 COPY package*.json ./
 
-# Install dependencies
+# Install dependencies, including devDependencies
 RUN npm install
 
 # Copy the rest of the application code
