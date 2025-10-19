@@ -31,9 +31,10 @@ COPY --from=builder /app/dist ./dist
 # Install the 'serve' package globally
 RUN npm install -g serve
 
-# Expose the port on which the app will run (e.g., 3000)
+# Expose a default port (optional). The platform will set $PORT at runtime.
 EXPOSE 3000
 
-# Set the entrypoint to run the serve command
-# The `-s` flag is essential for Single Page Applications (SPA)
-CMD ["serve", "-s", "dist", "-l", "3000"]
+# Use the shell form so the runtime $PORT env var is respected. If PORT is not
+# provided by the environment, default to 3000. This avoids connection refused
+# issues on platforms that expect the container to bind the provided $PORT.
+CMD sh -c "serve -s dist -l ${PORT:-3000}"
