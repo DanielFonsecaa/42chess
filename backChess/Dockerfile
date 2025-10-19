@@ -24,17 +24,13 @@ RUN useradd --system --user-group appuser || true
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates \
 	&& rm -rf /var/lib/apt/lists/*
 
-# copy only the artifacts we need
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/package*.json ./
-COPY --from=builder /usr/src/app/prisma ./prisma
-COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/index.js ./index.js
-COPY --from=builder /usr/src/app/docker-entrypoint.sh ./docker-entrypoint.sh
+# Copy the entire application directory from the builder stage. This is simpler
+# and avoids failing when a `dist` folder doesn't exist (some projects run
+# directly from `src` instead of building to `dist`).
+COPY --from=builder /usr/src/app /usr/src/app
 
-RUN chmod +x ./docker-entrypoint.sh
-
-# Ensure appuser can access the application files
+# Ensure entrypoint is executable and fix ownership for the non-root user
+RUN chmod +x /usr/src/app/docker-entrypoint.sh || true
 RUN chown -R appuser:appuser /usr/src/app
 
 ENV NODE_ENV=production

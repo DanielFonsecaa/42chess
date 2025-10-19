@@ -6,7 +6,10 @@
 
 generator client {
   provider = "prisma-client-js"
-  output = "generate"
+  // Ensure Prisma generates query engines for common Debian/OpenSSL targets
+  // This helps when the build environment and runtime environment differ
+  // (for example: debian-openssl-3.0.x vs debian-openssl-1.1.x).
+  binaryTargets = ["native", "debian-openssl-3.0.x", "debian-openssl-1.1.x"]
 }
 
 datasource db {
