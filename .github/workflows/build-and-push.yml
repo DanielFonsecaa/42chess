@@ -16,6 +16,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Set lowercase owner env
+        # Compute the repository owner in lowercase and expose it via GITHUB_ENV
+        run: |
+          echo "OWNER_LOWER=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1 | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -37,8 +42,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ toLower(github.repository_owner) }}/42chess-frontend:latest
-            ghcr.io/${{ toLower(github.repository_owner) }}/42chess-frontend:${{ github.sha }}
+            ghcr.io/${{ env.OWNER_LOWER }}/42chess-frontend:latest
+            ghcr.io/${{ env.OWNER_LOWER }}/42chess-frontend:${{ github.sha }}
           build-args: |
             VITE_API_URL=${{ secrets.VITE_API_URL }}
 
@@ -50,13 +55,13 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ toLower(github.repository_owner) }}/42chess-backend:latest
-            ghcr.io/${{ toLower(github.repository_owner) }}/42chess-backend:${{ github.sha }}
+            ghcr.io/${{ env.OWNER_LOWER }}/42chess-backend:latest
+            ghcr.io/${{ env.OWNER_LOWER }}/42chess-backend:${{ github.sha }}
           build-args: |
             # If you need to pass build-time args to the backend, add them here
             # E.g. SOME_BUILD_ARG=${{ secrets.SOME_BUILD_ARG }}
 
       - name: Output image names
         run: |
-          echo "Frontend image: ghcr.io/${{ toLower(github.repository_owner) }}/42chess-frontend:latest"
-          echo "Backend image:  ghcr.io/${{ toLower(github.repository_owner) }}/42chess-backend:latest"
+          echo "Frontend image: ghcr.io/${{ env.OWNER_LOWER }}/42chess-frontend:latest"
+          echo "Backend image:  ghcr.io/${{ env.OWNER_LOWER }}/42chess-backend:latest"
