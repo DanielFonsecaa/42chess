@@ -4,6 +4,26 @@ set -euo pipefail
 echo "== 42chess start helper: build both services =="
 ROOT_DIR="$(pwd)"
 
+# If Node is installed via nvm, non-interactive bash may not have nvm loaded.
+# Try to source common nvm/bootstrap files so `npm` is available when this
+# script is executed from bash (e.g. ./start.sh) even if you use nvm in zsh.
+if [ -n "${NVM_DIR-}" ] && [ -s "$NVM_DIR/nvm.sh" ]; then
+  # shellcheck disable=SC1090
+  . "$NVM_DIR/nvm.sh"
+elif [ -s "$HOME/.nvm/nvm.sh" ]; then
+  # shellcheck disable=SC1090
+  . "$HOME/.nvm/nvm.sh"
+fi
+# Also try common profile files which may load nvm
+if [ -s "$HOME/.profile" ]; then
+  # shellcheck disable=SC1090
+  . "$HOME/.profile"
+fi
+if [ -s "$HOME/.bashrc" ]; then
+  # shellcheck disable=SC1090
+  . "$HOME/.bashrc"
+fi
+
 # Build backend
 if [ -d "${ROOT_DIR}/backChess" ]; then
   echo "-- Building backend (backChess)"
