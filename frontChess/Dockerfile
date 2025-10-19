@@ -15,8 +15,8 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
-# Run the build command
-RUN tsc -b && vite build
+# Run the build command via npm so node_modules/.bin is available
+RUN npm run build
 
 # Stage 2: Serve the application with a lightweight server
 FROM node:20-alpine
