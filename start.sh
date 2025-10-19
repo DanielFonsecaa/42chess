@@ -10,9 +10,9 @@ if [ -d "${ROOT_DIR}/backChess" ]; then
   cd "${ROOT_DIR}/backChess"
   if [ -f package.json ]; then
     # Prefer CI install but fall back to install
-    if command -v npm >/dev/null 2>&1; then
+    if command npm -v >/dev/null 2>&1; then
       npm ci --silent || npm install --silent || true
-      npm run build --if-present || true
+      npm start --if-present || true
     else
       echo "npm not found, skipping backend install/build"
     fi
@@ -27,7 +27,7 @@ if [ -d "${ROOT_DIR}/frontChess" ]; then
   echo "-- Building frontend (frontChess)"
   cd "${ROOT_DIR}/frontChess"
   if [ -f package.json ]; then
-    if command -v npm >/dev/null 2>&1; then
+    if command npm -v >/dev/null 2>&1; then
       npm ci --silent || npm install --silent || true
       npm run build || true
     else
