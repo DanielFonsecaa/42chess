@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { getApiBaseUrl } from "../lib/runtimeApi";
 
 type Participant = {
   id: string;
@@ -53,7 +52,9 @@ export const Tournament: React.FC = () => {
     accent: "#7D4B32",
   };
 
-  const baseUrl = getApiBaseUrl().replace(/\/+$/, "");
+  const baseUrl = (
+    import.meta.env.VITE_API_URL || "http://localhost:3000"
+  ).replace(/\/+$/, "");
 
   useEffect(() => {
     const load = async () => {
