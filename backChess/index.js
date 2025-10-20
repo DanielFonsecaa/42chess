@@ -88,7 +88,57 @@ app.use(
 app.use(express.json());
 
 const PORT = process.env.PORT ?? 3000;
-app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
+
+// Helper to extract a DB host (masked) from DATABASE_URL for safe logging
+function getDbHostMask() {
+  const url = process.env.DATABASE_URL || "";
+  const m = url.match(/@([^:/]+)(?::\d+)?\//);
+  if (m && m[1]) return m[1];
+  if (process.env.DB_HOST) return process.env.DB_HOST;
+  return "(unknown)";
+}
+
+console.log("Starting application with:", {
+  PORT: PORT,
+  DB_HOST: getDbHostMask(),
+  FRONTEND_ORIGIN: process.env.FRONTEND_ORIGIN || null,
+  allowedOrigins,
+});
+
+let server;
+try {
+  server = app.listen(PORT, "0.0.0.0", () =>
+    console.log(`Server listening on ${PORT} (0.0.0.0)`)
+  );
+} catch (err) {
+  console.error("Failed to bind server:", err && err.stack ? err.stack : err);
+  // Crash so platform restarts and we get a fresh start with logs
+  process.exit(1);
+}
+
+// Graceful shutdown handlers so platform logs show why we stopped
+process.on("SIGTERM", async () => {
+  console.log("SIGTERM received, closing server...");
+  try {
+    if (server)
+      server.close(() => {
+        console.log("HTTP server closed");
+        prisma.$disconnect().finally(() => process.exit(0));
+      });
+    else {
+      await prisma.$disconnect();
+      process.exit(0);
+    }
+  } catch (e) {
+    console.error("Error during shutdown:", e);
+    process.exit(1);
+  }
+});
+
+process.on("SIGINT", () => {
+  console.log("SIGINT received, exiting");
+  process.exit(0);
+});
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
