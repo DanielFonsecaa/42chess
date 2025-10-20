@@ -147,10 +147,6 @@ app.use("/auth", auth);
 app.use("/tornament", tornament);
 
 app.get("/", async function (req, res) {
-  try {
-    const users = await prisma.user.findMany();
-    res.json(users);
-  } catch (error) {
-    res.json(error);
-  }
+  res.json({ status: "Servidor rodando ✅" });
+});
 });
