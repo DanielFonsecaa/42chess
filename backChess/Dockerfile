@@ -40,3 +40,7 @@ EXPOSE 3000
 USER appuser
 # Invoke the entrypoint explicitly via sh to avoid platform shebang/exec quirks
 ENTRYPOINT ["sh", "/usr/src/app/docker-entrypoint.sh"]
+
+# Fallback: also set CMD to the same script so platforms that override ENTRYPOINT
+# but still use the image CMD will run our startup script.
+CMD ["sh", "/usr/src/app/docker-entrypoint.sh"]
