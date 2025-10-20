@@ -38,4 +38,5 @@ ENV PORT=3000
 EXPOSE 3000
 
 USER appuser
-ENTRYPOINT ["/usr/src/app/docker-entrypoint.sh"]
+# Invoke the entrypoint explicitly via sh to avoid platform shebang/exec quirks
+ENTRYPOINT ["sh", "/usr/src/app/docker-entrypoint.sh"]
