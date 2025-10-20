@@ -148,7 +148,7 @@ app.use("/users", users);
 app.use("/auth", auth);
 app.use("/tornament", tornament);
 
-app.get("/", async function (req, res) {
-  res.json({ status: "Servidor rodando ✅" });
-});
+//app.get("/", async function (req, res) {
+ // res.json({ status: "Servidor rodando ✅" });
+//});
 });
