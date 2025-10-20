@@ -48,6 +48,20 @@ const options = {
 const swaggerSpec = swaggerJSDoc(options);
 const app = express();
 
+// Lightweight health endpoint that doesn't touch the database.
+// Useful for platform health checks to know the container process is running.
+app.get("/health", (_req, res) => res.sendStatus(200));
+
+// Global error handlers to surface unexpected startup/runtime errors in logs
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught exception:", err && err.stack ? err.stack : err);
+  // allow process to crash after logging so platform restarts the container
+  process.exit(1);
+});
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled rejection:", reason);
+});
+
 // Configure CORS: allow production domain and localhost during development
 const allowedOrigins = [
   process.env.FRONTEND_ORIGIN || "https://42chess.com",
