@@ -3,7 +3,7 @@ import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import dotenv from "dotenv";
 import cors from "cors";
-//import { prisma } from "./src/db.js";
+import { prisma } from "./src/db.js";
 //routes
 import auth from "./src/routes/auth.js";
 import users from "./src/routes/users.js";
@@ -123,10 +123,10 @@ process.on("SIGTERM", async () => {
     if (server)
       server.close(() => {
         console.log("HTTP server closed");
-     //   prisma.$disconnect().finally(() => process.exit(0));
+        prisma.$disconnect().finally(() => process.exit(0));
       });
     else {
-    //  await prisma.$disconnect();
+      await prisma.$disconnect();
       process.exit(0);
     }
   } catch (e) {
