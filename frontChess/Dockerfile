@@ -18,6 +18,12 @@ COPY . .
 # Run the build command via npm so node_modules/.bin is available
 RUN npm run build
 
+# Inject a small placeholder into the built index.html so we can replace it at runtime
+# This creates a predictable string __API_URL__ we replace from the entrypoint.
+RUN if [ -f dist/index.html ]; then \
+			awk 'BEGIN{printed=0} /<\/head>/{ if (!printed) { print "<script>window.__API_URL__=\"__API_URL__\"<\\/script>"; printed=1 } } {print}' dist/index.html > dist/index.html.tmp && mv dist/index.html.tmp dist/index.html ; \
+		fi
+
 # Stage 2: Serve the application with a lightweight server
 FROM node:20-alpine
 
@@ -26,7 +32,12 @@ WORKDIR /app
 
 # Copy the built files from the previous stage
 # `vite build` typically outputs to the `dist` folder.
+# Copy built files
 COPY --from=builder /app/dist ./dist
+
+# Copy entrypoint for runtime URL injection
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Install the 'serve' package globally
 RUN npm install -g serve
@@ -37,4 +48,5 @@ EXPOSE 3000
 # Use the shell form so the runtime $PORT env var is respected. If PORT is not
 # provided by the environment, default to 3000. This avoids connection refused
 # issues on platforms that expect the container to bind the provided $PORT.
-CMD sh -c "serve -s dist -l ${PORT:-3000}"
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["sh","-c","serve -s dist -l ${PORT:-3000}"]
