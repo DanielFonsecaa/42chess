@@ -3,14 +3,14 @@ import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { prisma } from "./src/db.js";
+//import { prisma } from "./src/db.js";
 //routes
 import auth from "./src/routes/auth.js";
 import users from "./src/routes/users.js";
 import tornament from "./src/routes/tournment.js";
 
 dotenv.config();
-
+console.log("🟡 Iniciando backend");
 const options = {
   definition: {
     openapi: "3.0.0",
@@ -123,10 +123,10 @@ process.on("SIGTERM", async () => {
     if (server)
       server.close(() => {
         console.log("HTTP server closed");
-        prisma.$disconnect().finally(() => process.exit(0));
+     //   prisma.$disconnect().finally(() => process.exit(0));
       });
     else {
-      await prisma.$disconnect();
+    //  await prisma.$disconnect();
       process.exit(0);
     }
   } catch (e) {
@@ -134,6 +134,8 @@ process.on("SIGTERM", async () => {
     process.exit(1);
   }
 });
+console.log("✅ Express configurado");
+console.log("✅ Prisma importado");
 
 process.on("SIGINT", () => {
   console.log("SIGINT received, exiting");
