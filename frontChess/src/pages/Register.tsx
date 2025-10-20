@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import board from "../assets/pieces/chess_board_2.webp";
+import { getApiBaseUrl } from "../lib/runtimeApi";
 
 export const Register: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -35,8 +36,8 @@ export const Register: React.FC = () => {
 
     setLoading(true);
     try {
-      // prefer VITE_API_URL, fallback to localhost for local dev
-      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      // runtime-aware base URL (checks window.__API_URL__ then VITE_API_URL then localhost)
+      const baseUrl = getApiBaseUrl();
       const res = await fetch(`${baseUrl.replace(/\/+$/, "")}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

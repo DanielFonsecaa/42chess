@@ -28,6 +28,10 @@ WORKDIR /app
 # `vite build` typically outputs to the `dist` folder.
 COPY --from=builder /app/dist ./dist
 
+# copy the entrypoint that will inject runtime env into /dist
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Install the 'serve' package globally
 RUN npm install -g serve
 
@@ -37,4 +41,4 @@ EXPOSE 3000
 # Use the shell form so the runtime $PORT env var is respected. If PORT is not
 # provided by the environment, default to 3000. This avoids connection refused
 # issues on platforms that expect the container to bind the provided $PORT.
-CMD sh -c "serve -s dist -l ${PORT:-3000}"
+CMD ["/entrypoint.sh", "sh", "-c", "serve -s dist -l ${PORT:-3000}"]
